@@ -1,0 +1,44 @@
+{
+  "temperature": 1.0,
+  "bias": 0.0,
+  "n_samples": 542,
+  "ece_before": 0.37749,
+  "ece_after": 0.37749,
+  "nll_before": 0.48114,
+  "nll_after": 0.48114,
+  "per_crop": {
+    "banana": {
+      "temperature": 1.0,
+      "bias": 0.0,
+      "n_samples": 138,
+      "sufficient_data": true,
+      "ece_before": 0.38984,
+      "ece_after": 0.38984
+    },
+    "mango": {
+      "temperature": 1.0,
+      "bias": 0.0,
+      "n_samples": 133,
+      "sufficient_data": true,
+      "ece_before": 0.37677,
+      "ece_after": 0.37677
+    },
+    "papaya": {
+      "temperature": 1.0,
+      "bias": 0.0,
+      "n_samples": 137,
+      "sufficient_data": true,
+      "ece_before": 0.36775,
+      "ece_after": 0.36775
+    },
+    "tomato": {
+      "temperature": 1.0,
+      "bias": 0.0,
+      "n_samples": 134,
+      "sufficient_data": true,
+      "ece_before": 0.37544,
+      "ece_after": 0.37544
+    }
+  },
+  "note": "Calibration NOT fitted: the calibration set is perfectly separable, so temperature scaling is ill-posed (the likelihood is minimised as T -> 0). This is itself a warning sign that the calibration data is too easy and does not represent field conditions. Temperature left at 1.0."
+}

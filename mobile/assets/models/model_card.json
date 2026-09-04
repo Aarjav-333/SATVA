@@ -1,0 +1,40 @@
+{
+  "model_id": "satva-screen-dev-0.1",
+  "kind": "tflite_float16",
+  "file": "satva_screen.tflite",
+  "input": {
+    "width": 224,
+    "height": 224,
+    "layout": "NHWC",
+    "dtype": "float32",
+    "normalisation": {
+      "mean": [
+        0.485,
+        0.456,
+        0.406
+      ],
+      "std": [
+        0.229,
+        0.224,
+        0.225
+      ]
+    }
+  },
+  "outputs": {
+    "ripeness_index": 0,
+    "anomaly_score": 1,
+    "embedding": 2
+  },
+  "size_mb": 2.1,
+  "band_agreement": 1.0,
+  "temperature": 1.0,
+  "bias": 0.0,
+  "is_validated": false,
+  "warning": "DEVELOPMENT MODEL. Trained on procedurally generated images, not real produce. Scores are meaningless for real fruit and must never be presented as an assessment of food safety. See ml/MODEL_CARD.md.",
+  "supported_crops": [
+    "mango",
+    "banana",
+    "papaya",
+    "tomato"
+  ]
+}

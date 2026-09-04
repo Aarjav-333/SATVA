@@ -1,0 +1,53 @@
+# SATVA backend dependencies.
+#
+# Versions are pinned to the exact releases the test suite was run against, so a
+# Docker build reproduces the environment the code was verified in rather than
+# picking up whatever is current on build day.
+
+# --- Web framework -----------------------------------------------------------
+fastapi==0.138.1
+uvicorn[standard]==0.49.0
+python-multipart==0.0.32
+pydantic[email]==2.13.4
+pydantic-settings==2.15.0
+
+# --- Database ----------------------------------------------------------------
+SQLAlchemy==2.0.51
+alembic==1.18.5
+psycopg[binary,pool]==3.3.5
+GeoAlchemy2==0.16.0
+pgvector==0.3.6
+
+# --- Async jobs --------------------------------------------------------------
+celery==5.4.0
+redis==5.2.1
+
+# --- Security ----------------------------------------------------------------
+# passlib removed: unmaintained since 2020 and incompatible with bcrypt 5.x.
+# app.core.security uses the bcrypt library directly.
+bcrypt==5.0.0
+PyJWT==2.13.0
+
+# --- Geometry, imaging, colorimetry -----------------------------------------
+numpy==2.3.5
+opencv-python-headless==5.0.0.93
+Pillow==12.2.0
+shapely==2.1.2
+scikit-learn==1.7.2
+scipy==1.17.1
+
+# --- Object storage ----------------------------------------------------------
+boto3==1.43.88
+
+# --- QR codes and documents --------------------------------------------------
+qrcode==8.2
+reportlab==5.0.1
+
+# --- Observability -----------------------------------------------------------
+structlog==26.1.0
+
+# --- Optional integrations ---------------------------------------------------
+# firebase-admin is only imported when SATVA_FIREBASE_CREDENTIALS_FILE is set;
+# the development OTP provider needs neither.
+firebase-admin==6.6.0
+paho-mqtt==2.1.0

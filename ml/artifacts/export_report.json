@@ -1,0 +1,245 @@
+{
+  "checkpoint": "artifacts\\satva_screen_best.pth",
+  "onnx": "artifacts\\satva_screen.onnx",
+  "onnx_bytes": 4314431,
+  "temperature": 1.0,
+  "bias": 0.0,
+  "training_metrics": {
+    "n": 209,
+    "positives": 103,
+    "ripeness_mae": 0.14080409142389252,
+    "roc_auc": 1.0,
+    "average_precision": 1.0,
+    "recall_at_p90": 1.0,
+    "threshold_at_p90": 0.4920973777770996,
+    "epoch": 1,
+    "train_loss": 0.6863689461062031
+  },
+  "variants": [
+    {
+      "scheme": "int8_full",
+      "path": "artifacts\\satva_screen_int8_full.tflite",
+      "bytes": 1370984,
+      "mb": 1.307,
+      "output_mapping": {
+        "ripeness_index": 0,
+        "anomaly_score": 1,
+        "embedding": 2
+      },
+      "parity": {
+        "n": 80,
+        "max_abs_score_drift": 16.908130645751953,
+        "mean_abs_score_drift": 8.229381322860718,
+        "torch_score_range": [
+          38.169166564941406,
+          73.88290405273438
+        ],
+        "tflite_score_range": [
+          48.4100456237793,
+          67.83203887939453
+        ],
+        "band_agreement": 0.8,
+        "band_disagreements": [
+          {
+            "torch_score": 68.75,
+            "tflite_score": 58.85,
+            "torch_band": "suspicious",
+            "tflite_band": "inconclusive"
+          },
+          {
+            "torch_score": 70.35,
+            "tflite_score": 55.08,
+            "torch_band": "suspicious",
+            "tflite_band": "inconclusive"
+          },
+          {
+            "torch_score": 65.08,
+            "tflite_score": 58.56,
+            "torch_band": "suspicious",
+            "tflite_band": "inconclusive"
+          },
+          {
+            "torch_score": 70.91,
+            "tflite_score": 58.85,
+            "torch_band": "suspicious",
+            "tflite_band": "inconclusive"
+          },
+          {
+            "torch_score": 69.49,
+            "tflite_score": 58.85,
+            "torch_band": "suspicious",
+            "tflite_band": "inconclusive"
+          },
+          {
+            "torch_score": 67.49,
+            "tflite_score": 56.53,
+            "torch_band": "suspicious",
+            "tflite_band": "inconclusive"
+          },
+          {
+            "torch_score": 52.7,
+            "tflite_score": 62.9,
+            "torch_band": "inconclusive",
+            "tflite_band": "suspicious"
+          },
+          {
+            "torch_score": 69.43,
+            "tflite_score": 57.69,
+            "torch_band": "suspicious",
+            "tflite_band": "inconclusive"
+          },
+          {
+            "torch_score": 64.64,
+            "tflite_score": 55.08,
+            "torch_band": "suspicious",
+            "tflite_band": "inconclusive"
+          },
+          {
+            "torch_score": 68.05,
+            "tflite_score": 54.79,
+            "torch_band": "suspicious",
+            "tflite_band": "inconclusive"
+          }
+        ],
+        "within_score_tolerance": false,
+        "score_tolerance": 6.0,
+        "passes_release_gate": false,
+        "band_agreement_gate": 0.98
+      }
+    },
+    {
+      "scheme": "int8_fallback",
+      "path": "artifacts\\satva_screen_int8_fallback.tflite",
+      "bytes": 1370984,
+      "mb": 1.307,
+      "output_mapping": {
+        "ripeness_index": 0,
+        "anomaly_score": 1,
+        "embedding": 2
+      },
+      "parity": {
+        "n": 80,
+        "max_abs_score_drift": 16.908130645751953,
+        "mean_abs_score_drift": 8.229381322860718,
+        "torch_score_range": [
+          38.169166564941406,
+          73.88290405273438
+        ],
+        "tflite_score_range": [
+          48.4100456237793,
+          67.83203887939453
+        ],
+        "band_agreement": 0.8,
+        "band_disagreements": [
+          {
+            "torch_score": 68.75,
+            "tflite_score": 58.85,
+            "torch_band": "suspicious",
+            "tflite_band": "inconclusive"
+          },
+          {
+            "torch_score": 70.35,
+            "tflite_score": 55.08,
+            "torch_band": "suspicious",
+            "tflite_band": "inconclusive"
+          },
+          {
+            "torch_score": 65.08,
+            "tflite_score": 58.56,
+            "torch_band": "suspicious",
+            "tflite_band": "inconclusive"
+          },
+          {
+            "torch_score": 70.91,
+            "tflite_score": 58.85,
+            "torch_band": "suspicious",
+            "tflite_band": "inconclusive"
+          },
+          {
+            "torch_score": 69.49,
+            "tflite_score": 58.85,
+            "torch_band": "suspicious",
+            "tflite_band": "inconclusive"
+          },
+          {
+            "torch_score": 67.49,
+            "tflite_score": 56.53,
+            "torch_band": "suspicious",
+            "tflite_band": "inconclusive"
+          },
+          {
+            "torch_score": 52.7,
+            "tflite_score": 62.9,
+            "torch_band": "inconclusive",
+            "tflite_band": "suspicious"
+          },
+          {
+            "torch_score": 69.43,
+            "tflite_score": 57.69,
+            "torch_band": "suspicious",
+            "tflite_band": "inconclusive"
+          },
+          {
+            "torch_score": 64.64,
+            "tflite_score": 55.08,
+            "torch_band": "suspicious",
+            "tflite_band": "inconclusive"
+          },
+          {
+            "torch_score": 68.05,
+            "tflite_score": 54.79,
+            "torch_band": "suspicious",
+            "tflite_band": "inconclusive"
+          }
+        ],
+        "within_score_tolerance": false,
+        "score_tolerance": 6.0,
+        "passes_release_gate": false,
+        "band_agreement_gate": 0.98
+      }
+    },
+    {
+      "scheme": "float16",
+      "path": "artifacts\\satva_screen_float16.tflite",
+      "bytes": 2202340,
+      "mb": 2.1,
+      "output_mapping": {
+        "ripeness_index": 0,
+        "anomaly_score": 1,
+        "embedding": 2
+      },
+      "parity": {
+        "n": 80,
+        "max_abs_score_drift": 0.2555122375488281,
+        "mean_abs_score_drift": 0.07468547821044921,
+        "torch_score_range": [
+          38.169166564941406,
+          73.88290405273438
+        ],
+        "tflite_score_range": [
+          38.33393096923828,
+          73.961669921875
+        ],
+        "band_agreement": 1.0,
+        "band_disagreements": [],
+        "within_score_tolerance": true,
+        "score_tolerance": 6.0,
+        "passes_release_gate": true,
+        "band_agreement_gate": 0.98
+      }
+    }
+  ],
+  "backbone_weights_transferred": true,
+  "selection_note": "Smallest variant clearing the band-agreement gate.",
+  "deployed": {
+    "path": "artifacts/satva_screen.tflite",
+    "scheme": "float16",
+    "mb": 2.1,
+    "output_mapping": {
+      "ripeness_index": 0,
+      "anomaly_score": 1,
+      "embedding": 2
+    },
+    "band_agreement": 1.0
+  }
+}

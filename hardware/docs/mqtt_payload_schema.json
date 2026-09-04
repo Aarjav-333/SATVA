@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://satva.dev/schemas/node-telemetry-v1.json",
+  "title": "SATVA Node telemetry",
+  "description": "One sample published by an ESP32 field node to satva/node/{node_uid}/telemetry. Mirrors NodeTelemetryIn in backend/app/schemas/retail.py. Advisory data only: never evidence.",
+  "type": "object",
+  "required": ["node_uid", "sample_uid"],
+  "additionalProperties": false,
+  "properties": {
+    "node_uid": {
+      "type": "string",
+      "maxLength": 64,
+      "description": "Stable per-device id, derived from the MAC address.",
+      "examples": ["node-a4cf12de90b7"]
+    },
+    "sample_uid": {
+      "type": "string",
+      "maxLength": 64,
+      "description": "Unique per sample. Makes ingestion idempotent: MQTT is at-least-once, so a redelivered message must not double-count.",
+      "examples": ["node-a4cf12de90b7-0041"]
+    },
+    "recorded_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "Optional. The node has no RTC, so the server stamps arrival time when this is absent."
+    },
+    "firmware_version": { "type": "string", "maxLength": 32 },
+    "temperature_c": {
+      "type": ["number", "null"],
+      "minimum": -40,
+      "maximum": 80,
+      "description": "DHT22. Null on a failed read — never substituted with 0."
+    },
+    "humidity_pct": {
+      "type": ["number", "null"],
+      "minimum": 0,
+      "maximum": 100,
+      "description": "DHT22. Published alongside every gas reading because MQ baseline drifts with humidity."
+    },
+    "mq_raw_adc": {
+      "type": ["integer", "null"],
+      "minimum": 0,
+      "maximum": 4095,
+      "description": "Raw 12-bit ESP32 ADC value, averaged over 10 samples."
+    },
+    "mq_rs_ohms": {
+      "type": ["number", "null"],
+      "exclusiveMinimum": 0,
+      "description": "Sensor resistance derived from the load-resistor divider."
+    },
+    "mq_rs_r0_ratio": {
+      "type": ["number", "null"],
+      "exclusiveMinimum": 0,
+      "description": "Rs divided by the clean-air baseline R0. Present only when the unit has been calibrated."
+    },
+    "calibrated": {
+      "type": "boolean",
+      "description": "False when no R0 baseline is stored. An uncalibrated node must not emit a ratio."
+    },
+    "advisory_hint": {
+      "type": "boolean",
+      "description": "The node's own view that the ratio is unusual. The server recomputes this against its stored R0 and does not trust the hint."
+    },
+    "lot_id": {
+      "type": ["string", "null"],
+      "format": "uuid",
+      "description": "Optional link to a produce lot being sampled."
+    }
+  },
+  "examples": [
+    {
+      "node_uid": "node-a4cf12de90b7",
+      "sample_uid": "node-a4cf12de90b7-0041",
+      "firmware_version": "0.1.0",
+      "temperature_c": 29.4,
+      "humidity_pct": 71.2,
+      "mq_raw_adc": 1842,
+      "mq_rs_ohms": 11230.5,
+      "mq_rs_r0_ratio": 1.204,
+      "advisory_hint": false
+    }
+  ]
+}

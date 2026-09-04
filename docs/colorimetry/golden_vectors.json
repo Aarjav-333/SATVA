@@ -1,0 +1,1073 @@
+{
+  "_comment": "Shared golden vectors. The Python reference implementation in backend/app/services/colorimetry/ and the Dart on-device implementation in mobile/lib/features/colorimetry/engine/ are both tested against this file. If the two disagree, one of them has drifted. Regenerate with backend/scripts/generate_golden_vectors.py.",
+  "generated_by": "backend/scripts/generate_golden_vectors.py",
+  "tolerance": {
+    "lab": 1e-06,
+    "delta_e": 1e-06,
+    "concentration": 1e-06
+  },
+  "srgb_u8_to_lab": [
+    {
+      "rgb": [
+        0,
+        0,
+        0
+      ],
+      "lab": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "rgb": [
+        255,
+        255,
+        255
+      ],
+      "lab": [
+        100.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "rgb": [
+        128,
+        128,
+        128
+      ],
+      "lab": [
+        53.585013452,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "rgb": [
+        255,
+        0,
+        0
+      ],
+      "lab": [
+        53.240791833,
+        80.092469545,
+        67.203192536
+      ]
+    },
+    {
+      "rgb": [
+        0,
+        255,
+        0
+      ],
+      "lab": [
+        87.734718895,
+        -86.182701516,
+        83.179314541
+      ]
+    },
+    {
+      "rgb": [
+        0,
+        0,
+        255
+      ],
+      "lab": [
+        32.297009323,
+        79.187526784,
+        -107.86016453
+      ]
+    },
+    {
+      "rgb": [
+        243,
+        243,
+        242
+      ],
+      "lab": [
+        95.816743824,
+        -0.176217433,
+        0.480618688
+      ]
+    },
+    {
+      "rgb": [
+        222,
+        118,
+        32
+      ],
+      "lab": [
+        60.422668897,
+        35.236364754,
+        60.410799123
+      ]
+    },
+    {
+      "rgb": [
+        231,
+        199,
+        31
+      ],
+      "lab": [
+        80.704172702,
+        -3.663615065,
+        77.547586539
+      ]
+    },
+    {
+      "rgb": [
+        87,
+        108,
+        67
+      ],
+      "lab": [
+        42.998029524,
+        -15.875767228,
+        20.451122987
+      ]
+    },
+    {
+      "rgb": [
+        24,
+        58,
+        168
+      ],
+      "lab": [
+        29.529077479,
+        31.271322271,
+        -61.982762305
+      ]
+    },
+    {
+      "rgb": [
+        52,
+        52,
+        52
+      ],
+      "lab": [
+        21.704275933,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "delta_e_2000": [
+    {
+      "lab1": [
+        50,
+        2.6772,
+        -79.7751
+      ],
+      "lab2": [
+        50,
+        0,
+        -82.7485
+      ],
+      "de": 2.04245968
+    },
+    {
+      "lab1": [
+        50,
+        2.49,
+        -0.001
+      ],
+      "lab2": [
+        50,
+        -2.49,
+        0.0009
+      ],
+      "de": 7.179172011
+    },
+    {
+      "lab1": [
+        50,
+        2.5,
+        0
+      ],
+      "lab2": [
+        73,
+        25,
+        -18
+      ],
+      "de": 27.149231301
+    },
+    {
+      "lab1": [
+        60.2574,
+        -34.0099,
+        36.2677
+      ],
+      "lab2": [
+        60.4626,
+        -34.1751,
+        39.4387
+      ],
+      "de": 1.264420014
+    },
+    {
+      "lab1": [
+        22.7233,
+        20.0904,
+        -46.694
+      ],
+      "lab2": [
+        23.0331,
+        14.973,
+        -42.5619
+      ],
+      "de": 2.03725827
+    },
+    {
+      "lab1": [
+        79,
+        3,
+        66
+      ],
+      "lab2": [
+        67,
+        24,
+        60
+      ],
+      "de": 16.551990384
+    },
+    {
+      "lab1": [
+        59,
+        36,
+        51
+      ],
+      "lab2": [
+        51,
+        45,
+        41
+      ],
+      "de": 11.248199398
+    },
+    {
+      "lab1": [
+        2.0776,
+        0.0795,
+        -1.135
+      ],
+      "lab2": [
+        0.9033,
+        -0.0636,
+        -0.5514
+      ],
+      "de": 0.90823284
+    }
+  ],
+  "correction": {
+    "per_channel": {
+      "observed": [
+        [
+          255.0,
+          242.0,
+          205.28
+        ],
+        [
+          227.0,
+          199.0,
+          170.0
+        ],
+        [
+          182.2,
+          159.0,
+          136.4
+        ],
+        [
+          139.64,
+          121.0,
+          103.64
+        ],
+        [
+          98.2,
+          84.0,
+          73.4
+        ],
+        [
+          61.24,
+          51.0,
+          45.68
+        ],
+        [
+          251.64,
+          117.0,
+          28.88
+        ],
+        [
+          255.0,
+          198.0,
+          28.04
+        ],
+        [
+          212.44,
+          85.0,
+          127.16
+        ],
+        [
+          112.76,
+          121.0,
+          133.88
+        ],
+        [
+          100.44,
+          107.0,
+          58.28
+        ],
+        [
+          193.4,
+          64.0,
+          44.84
+        ]
+      ],
+      "expected": [
+        [
+          243,
+          243,
+          242
+        ],
+        [
+          200,
+          200,
+          200
+        ],
+        [
+          160,
+          160,
+          160
+        ],
+        [
+          122,
+          122,
+          121
+        ],
+        [
+          85,
+          85,
+          85
+        ],
+        [
+          52,
+          52,
+          52
+        ],
+        [
+          222,
+          118,
+          32
+        ],
+        [
+          231,
+          199,
+          31
+        ],
+        [
+          187,
+          86,
+          149
+        ],
+        [
+          98,
+          122,
+          157
+        ],
+        [
+          87,
+          108,
+          67
+        ],
+        [
+          170,
+          65,
+          51
+        ]
+      ],
+      "matrix": [
+        [
+          0.817332181,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.008233354,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.453542811
+        ]
+      ],
+      "offset": [
+        -0.018129178,
+        0.001566745,
+        -0.006060163
+      ],
+      "mean_residual_de": 2.064940756,
+      "mean_cv_residual_de": 2.527938024
+    },
+    "affine33": {
+      "observed": [
+        [
+          255.0,
+          242.0,
+          205.28
+        ],
+        [
+          227.0,
+          199.0,
+          170.0
+        ],
+        [
+          182.2,
+          159.0,
+          136.4
+        ],
+        [
+          139.64,
+          121.0,
+          103.64
+        ],
+        [
+          98.2,
+          84.0,
+          73.4
+        ],
+        [
+          61.24,
+          51.0,
+          45.68
+        ],
+        [
+          251.64,
+          117.0,
+          28.88
+        ],
+        [
+          255.0,
+          198.0,
+          28.04
+        ],
+        [
+          212.44,
+          85.0,
+          127.16
+        ],
+        [
+          112.76,
+          121.0,
+          133.88
+        ],
+        [
+          100.44,
+          107.0,
+          58.28
+        ],
+        [
+          193.4,
+          64.0,
+          44.84
+        ]
+      ],
+      "expected": [
+        [
+          243,
+          243,
+          242
+        ],
+        [
+          200,
+          200,
+          200
+        ],
+        [
+          160,
+          160,
+          160
+        ],
+        [
+          122,
+          122,
+          121
+        ],
+        [
+          85,
+          85,
+          85
+        ],
+        [
+          52,
+          52,
+          52
+        ],
+        [
+          222,
+          118,
+          32
+        ],
+        [
+          231,
+          199,
+          31
+        ],
+        [
+          187,
+          86,
+          149
+        ],
+        [
+          98,
+          122,
+          157
+        ],
+        [
+          87,
+          108,
+          67
+        ],
+        [
+          170,
+          65,
+          51
+        ]
+      ],
+      "matrix": [
+        [
+          0.755093585,
+          0.120986229,
+          0.017676175
+        ],
+        [
+          -9.043e-06,
+          1.008527327,
+          -0.000540714
+        ],
+        [
+          0.001982254,
+          0.006601047,
+          1.445123922
+        ]
+      ],
+      "offset": [
+        -0.023037817,
+        0.001581298,
+        -0.007481363
+      ],
+      "mean_residual_de": 2.087650738,
+      "mean_cv_residual_de": 2.968376786
+    }
+  },
+  "calibration_projection": [
+    {
+      "assay": "turmeric_carbide",
+      "lab": [
+        79.0,
+        3.0,
+        66.0
+      ],
+      "concentration": 0.0,
+      "off_path_de": 0.0,
+      "segment_index": 0,
+      "segment_fraction": 0.0,
+      "optical_uncertainty_de": 0.5,
+      "ci_low": 0.0,
+      "ci_high": 0.0983
+    },
+    {
+      "assay": "turmeric_carbide",
+      "lab": [
+        59.0,
+        36.0,
+        51.0
+      ],
+      "concentration": 2.5,
+      "off_path_de": 0.0,
+      "segment_index": 2,
+      "segment_fraction": 1.0,
+      "optical_uncertainty_de": 0.5,
+      "ci_low": 2.3181,
+      "ci_high": 2.6819
+    },
+    {
+      "assay": "turmeric_carbide",
+      "lab": [
+        76.5,
+        7.5,
+        65.0
+      ],
+      "concentration": 0.25,
+      "off_path_de": 0.0,
+      "segment_index": 0,
+      "segment_fraction": 0.5,
+      "optical_uncertainty_de": 0.5,
+      "ci_low": 0.1517,
+      "ci_high": 0.3483
+    },
+    {
+      "assay": "starch_iodine_milk",
+      "lab": [
+        78.0,
+        2.0,
+        22.0
+      ],
+      "concentration": 0.0,
+      "off_path_de": 0.0,
+      "segment_index": 0,
+      "segment_fraction": 0.0,
+      "optical_uncertainty_de": 0.5,
+      "ci_low": 0.0,
+      "ci_high": 0.0239
+    },
+    {
+      "assay": "starch_iodine_milk",
+      "lab": [
+        46.0,
+        6.0,
+        -18.0
+      ],
+      "concentration": 0.5,
+      "off_path_de": 0.0,
+      "segment_index": 1,
+      "segment_fraction": 1.0,
+      "optical_uncertainty_de": 0.5,
+      "ci_low": 0.4761,
+      "ci_high": 0.5239
+    },
+    {
+      "assay": "starch_iodine_milk",
+      "lab": [
+        70.0,
+        3.0,
+        12.0
+      ],
+      "concentration": 0.125,
+      "off_path_de": 0.0,
+      "segment_index": 0,
+      "segment_fraction": 0.5,
+      "optical_uncertainty_de": 0.5,
+      "ci_low": 0.1011,
+      "ci_high": 0.1489
+    },
+    {
+      "assay": "formalin_fish",
+      "lab": [
+        88.0,
+        -1.0,
+        6.0
+      ],
+      "concentration": 0.0,
+      "off_path_de": 0.0,
+      "segment_index": 0,
+      "segment_fraction": 0.0,
+      "optical_uncertainty_de": 0.5,
+      "ci_low": 0.0,
+      "ci_high": 0.2742
+    },
+    {
+      "assay": "formalin_fish",
+      "lab": [
+        62.0,
+        32.0,
+        4.0
+      ],
+      "concentration": 5.0,
+      "off_path_de": 0.0,
+      "segment_index": 1,
+      "segment_fraction": 1.0,
+      "optical_uncertainty_de": 0.5,
+      "ci_low": 4.6569,
+      "ci_high": 5.3431
+    },
+    {
+      "assay": "formalin_fish",
+      "lab": [
+        82.0,
+        6.5,
+        7.0
+      ],
+      "concentration": 1.0,
+      "off_path_de": 0.0,
+      "segment_index": 0,
+      "segment_fraction": 0.5,
+      "optical_uncertainty_de": 0.5,
+      "ci_low": 0.7258,
+      "ci_high": 1.2742
+    },
+    {
+      "assay": "metanil_yellow_turmeric",
+      "lab": [
+        76.0,
+        6.0,
+        64.0
+      ],
+      "concentration": 0.0,
+      "off_path_de": 0.0,
+      "segment_index": 0,
+      "segment_fraction": 0.0,
+      "optical_uncertainty_de": 0.5,
+      "ci_low": 0.0,
+      "ci_high": 0.0868
+    },
+    {
+      "assay": "metanil_yellow_turmeric",
+      "lab": [
+        56.0,
+        46.0,
+        40.0
+      ],
+      "concentration": 2.0,
+      "off_path_de": 0.0,
+      "segment_index": 1,
+      "segment_fraction": 1.0,
+      "optical_uncertainty_de": 0.5,
+      "ci_low": 1.9162,
+      "ci_high": 2.0838
+    },
+    {
+      "assay": "metanil_yellow_turmeric",
+      "lab": [
+        72.0,
+        18.0,
+        61.0
+      ],
+      "concentration": 0.5,
+      "off_path_de": 0.0,
+      "segment_index": 0,
+      "segment_fraction": 0.5,
+      "optical_uncertainty_de": 0.5,
+      "ci_low": 0.4132,
+      "ci_high": 0.5868
+    },
+    {
+      "assay": "argemone_mustard_oil",
+      "lab": [
+        72.0,
+        6.0,
+        64.0
+      ],
+      "concentration": 0.0,
+      "off_path_de": 0.0,
+      "segment_index": 0,
+      "segment_fraction": 0.0,
+      "optical_uncertainty_de": 0.5,
+      "ci_low": 0.0,
+      "ci_high": 0.1084
+    },
+    {
+      "assay": "argemone_mustard_oil",
+      "lab": [
+        48.0,
+        42.0,
+        36.0
+      ],
+      "concentration": 2.0,
+      "off_path_de": 0.0,
+      "segment_index": 1,
+      "segment_fraction": 1.0,
+      "optical_uncertainty_de": 0.5,
+      "ci_low": 1.8889,
+      "ci_high": 2.1111
+    },
+    {
+      "assay": "argemone_mustard_oil",
+      "lab": [
+        66.0,
+        16.0,
+        58.0
+      ],
+      "concentration": 0.5,
+      "off_path_de": 0.0,
+      "segment_index": 0,
+      "segment_fraction": 0.5,
+      "optical_uncertainty_de": 0.5,
+      "ci_low": 0.3916,
+      "ci_high": 0.6084
+    }
+  ],
+  "calibrations": {
+    "turmeric_carbide": {
+      "calibration_id": "turmeric-carbide-v1",
+      "display_name": "Turmeric indicator - carbide residue",
+      "unit": "mg/L equivalent (indicative)",
+      "action_threshold": 1.0,
+      "reagent_repeatability_de": 2.0,
+      "max_off_path_de": 18.0,
+      "is_lab_validated": false,
+      "supported_crops": [
+        "mango",
+        "banana",
+        "papaya",
+        "tomato"
+      ],
+      "stops": [
+        {
+          "concentration": 0.0,
+          "lab": [
+            79.0,
+            3.0,
+            66.0
+          ],
+          "label": "not detected"
+        },
+        {
+          "concentration": 0.5,
+          "lab": [
+            74.0,
+            12.0,
+            64.0
+          ],
+          "label": "trace"
+        },
+        {
+          "concentration": 1.0,
+          "lab": [
+            67.0,
+            24.0,
+            60.0
+          ],
+          "label": "detected"
+        },
+        {
+          "concentration": 2.5,
+          "lab": [
+            59.0,
+            36.0,
+            51.0
+          ],
+          "label": "clearly detected"
+        },
+        {
+          "concentration": 5.0,
+          "lab": [
+            51.0,
+            45.0,
+            41.0
+          ],
+          "label": "strong"
+        },
+        {
+          "concentration": 10.0,
+          "lab": [
+            43.0,
+            50.0,
+            31.0
+          ],
+          "label": "very strong"
+        }
+      ]
+    },
+    "starch_iodine_milk": {
+      "calibration_id": "starch-iodine-milk-v1",
+      "display_name": "Starch-iodine - added starch in milk",
+      "unit": "% w/v added starch (indicative)",
+      "action_threshold": 0.25,
+      "reagent_repeatability_de": 2.4,
+      "max_off_path_de": 20.0,
+      "is_lab_validated": false,
+      "supported_crops": [],
+      "stops": [
+        {
+          "concentration": 0.0,
+          "lab": [
+            78.0,
+            2.0,
+            22.0
+          ],
+          "label": "not detected"
+        },
+        {
+          "concentration": 0.25,
+          "lab": [
+            62.0,
+            4.0,
+            2.0
+          ],
+          "label": "trace"
+        },
+        {
+          "concentration": 0.5,
+          "lab": [
+            46.0,
+            6.0,
+            -18.0
+          ],
+          "label": "detected"
+        },
+        {
+          "concentration": 1.0,
+          "lab": [
+            34.0,
+            8.0,
+            -28.0
+          ],
+          "label": "clearly detected"
+        },
+        {
+          "concentration": 2.0,
+          "lab": [
+            27.0,
+            6.0,
+            -30.0
+          ],
+          "label": "strong"
+        }
+      ]
+    },
+    "formalin_fish": {
+      "calibration_id": "formalin-fish-v1",
+      "display_name": "Formalin in fish",
+      "unit": "ppm formaldehyde (indicative)",
+      "action_threshold": 2.0,
+      "reagent_repeatability_de": 2.6,
+      "max_off_path_de": 20.0,
+      "is_lab_validated": false,
+      "supported_crops": [],
+      "stops": [
+        {
+          "concentration": 0.0,
+          "lab": [
+            88.0,
+            -1.0,
+            6.0
+          ],
+          "label": "not detected"
+        },
+        {
+          "concentration": 2.0,
+          "lab": [
+            76.0,
+            14.0,
+            8.0
+          ],
+          "label": "trace"
+        },
+        {
+          "concentration": 5.0,
+          "lab": [
+            62.0,
+            32.0,
+            4.0
+          ],
+          "label": "detected"
+        },
+        {
+          "concentration": 10.0,
+          "lab": [
+            48.0,
+            46.0,
+            -6.0
+          ],
+          "label": "clearly detected"
+        },
+        {
+          "concentration": 20.0,
+          "lab": [
+            36.0,
+            52.0,
+            -14.0
+          ],
+          "label": "strong"
+        }
+      ]
+    },
+    "metanil_yellow_turmeric": {
+      "calibration_id": "metanil-yellow-turmeric-v1",
+      "display_name": "Metanil yellow in turmeric powder",
+      "unit": "relative response (indicative)",
+      "action_threshold": 1.0,
+      "reagent_repeatability_de": 2.2,
+      "max_off_path_de": 20.0,
+      "is_lab_validated": false,
+      "supported_crops": [],
+      "stops": [
+        {
+          "concentration": 0.0,
+          "lab": [
+            76.0,
+            6.0,
+            64.0
+          ],
+          "label": "not detected"
+        },
+        {
+          "concentration": 1.0,
+          "lab": [
+            68.0,
+            30.0,
+            58.0
+          ],
+          "label": "detected"
+        },
+        {
+          "concentration": 2.0,
+          "lab": [
+            56.0,
+            46.0,
+            40.0
+          ],
+          "label": "clearly detected"
+        },
+        {
+          "concentration": 3.0,
+          "lab": [
+            46.0,
+            56.0,
+            26.0
+          ],
+          "label": "strong"
+        }
+      ]
+    },
+    "argemone_mustard_oil": {
+      "calibration_id": "argemone-mustard-v1",
+      "display_name": "Argemone oil in mustard oil",
+      "unit": "relative response (indicative)",
+      "action_threshold": 1.0,
+      "reagent_repeatability_de": 2.8,
+      "max_off_path_de": 22.0,
+      "is_lab_validated": false,
+      "supported_crops": [],
+      "stops": [
+        {
+          "concentration": 0.0,
+          "lab": [
+            72.0,
+            6.0,
+            64.0
+          ],
+          "label": "not detected"
+        },
+        {
+          "concentration": 1.0,
+          "lab": [
+            60.0,
+            26.0,
+            52.0
+          ],
+          "label": "detected"
+        },
+        {
+          "concentration": 2.0,
+          "lab": [
+            48.0,
+            42.0,
+            36.0
+          ],
+          "label": "clearly detected"
+        },
+        {
+          "concentration": 3.0,
+          "lab": [
+            38.0,
+            50.0,
+            22.0
+          ],
+          "label": "strong"
+        }
+      ]
+    }
+  }
+}

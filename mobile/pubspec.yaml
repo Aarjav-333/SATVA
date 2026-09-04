@@ -1,0 +1,59 @@
+name: satva
+description: "SATVA - Scan, Analyse, Trace, Verify, Alert. Food-safety screening for Indian produce."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: '>=3.4.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State management (specification 5.3)
+  flutter_riverpod: ^2.5.1
+  riverpod_annotation: ^2.3.5
+
+  # Camera and imaging
+  camera: ^0.11.0
+  image: ^4.2.0
+  image_picker: ^1.1.2
+
+  # On-device inference
+  tflite_flutter: ^0.11.0
+
+  # Offline-first storage (specification 5.3)
+  sqflite: ^2.3.3
+  path_provider: ^2.1.4
+  path: ^1.9.0
+
+  # Connectivity and sync
+  connectivity_plus: ^6.0.5
+  http: ^1.2.2
+
+  # Location for geotagging confirmed scans
+  geolocator: ^13.0.1
+
+  # QR scanning for SATVA Trace
+  mobile_scanner: ^5.2.3
+
+  # Identity and misc
+  device_info_plus: ^10.1.2
+  shared_preferences: ^2.3.2
+  crypto: ^3.0.5
+  uuid: ^4.5.1
+  intl: ^0.19.0
+  url_launcher: ^6.3.0
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/models/
+    - assets/calibration/
+    - assets/reference_card/

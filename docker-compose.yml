@@ -1,0 +1,212 @@
+# SATVA — full local stack.
+#
+#   cp .env.example .env
+#   docker compose up -d
+#   docker compose exec api alembic upgrade head
+#   docker compose exec api python -m scripts.seed_demo
+#
+# Services come up in dependency order via healthchecks, so `up` alone leaves
+# you with a working system rather than a race between the API and Postgres.
+
+name: satva
+
+services:
+  postgres:
+    # PostgreSQL 16 with BOTH PostGIS and pgvector. No official image ships
+    # both, so infrastructure/postgres/Dockerfile adds pgvector to the PostGIS
+    # image. SATVA needs PostGIS for spatial clustering and pgvector for
+    # near-duplicate image detection.
+    build:
+      context: ./infrastructure/postgres
+      dockerfile: Dockerfile
+    image: satva/postgis-pgvector:16
+    container_name: satva-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-satva}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-satva_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-satva}
+      # Deterministic collation so ordering does not depend on the host locale.
+      POSTGRES_INITDB_ARGS: "--locale=C --encoding=UTF8"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-satva} -d ${POSTGRES_DB:-satva}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+
+  redis:
+    image: redis:7-alpine
+    container_name: satva-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--save", "60", "1"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio:
+    image: minio/minio:RELEASE.2024-12-18T13-15-44Z
+    container_name: satva-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-satva_minio_admin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-satva_minio_password}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  minio-init:
+    image: minio/mc:RELEASE.2024-11-21T17-21-54Z
+    container_name: satva-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set satva http://minio:9000 ${MINIO_ROOT_USER:-satva_minio_admin} ${MINIO_ROOT_PASSWORD:-satva_minio_password} &&
+      mc mb --ignore-existing satva/${SATVA_S3_BUCKET:-satva-evidence} &&
+      echo 'evidence bucket ready';
+      "
+    restart: "no"
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: satva-mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./infrastructure/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mosquitto_data:/mosquitto/data
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: satva-api
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      SATVA_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-satva}:${POSTGRES_PASSWORD:-satva_dev_password}@postgres:5432/${POSTGRES_DB:-satva}
+      SATVA_REDIS_URL: redis://redis:6379/0
+      SATVA_CELERY_BROKER_URL: redis://redis:6379/1
+      SATVA_CELERY_RESULT_BACKEND: redis://redis:6379/2
+      SATVA_S3_ENDPOINT_URL: http://minio:9000
+      SATVA_S3_PUBLIC_ENDPOINT_URL: http://localhost:9000
+      SATVA_MQTT_HOST: mosquitto
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    command: >
+      sh -c "alembic upgrade head &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request;urllib.request.urlopen('http://localhost:8000/api/v1/health')\""]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: satva-worker
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      SATVA_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-satva}:${POSTGRES_PASSWORD:-satva_dev_password}@postgres:5432/${POSTGRES_DB:-satva}
+      SATVA_ANALYTICS_DATABASE_URL: postgresql+psycopg://satva_analytics:${SATVA_ANALYTICS_DB_PASSWORD:-satva_analytics_password}@postgres:5432/${POSTGRES_DB:-satva}
+      SATVA_CELERY_BROKER_URL: redis://redis:6379/1
+      SATVA_CELERY_RESULT_BACKEND: redis://redis:6379/2
+      SATVA_S3_ENDPOINT_URL: http://minio:9000
+    volumes:
+      - ./backend:/app
+    depends_on:
+      api:
+        condition: service_healthy
+    command: celery -A app.workers.celery_app worker --loglevel=info --concurrency=2
+
+  beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: satva-beat
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      SATVA_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-satva}:${POSTGRES_PASSWORD:-satva_dev_password}@postgres:5432/${POSTGRES_DB:-satva}
+      SATVA_CELERY_BROKER_URL: redis://redis:6379/1
+      SATVA_CELERY_RESULT_BACKEND: redis://redis:6379/2
+    volumes:
+      - ./backend:/app
+    depends_on:
+      api:
+        condition: service_healthy
+    command: celery -A app.workers.celery_app beat --loglevel=info
+
+  mqtt-bridge:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: satva-mqtt-bridge
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      SATVA_MQTT_HOST: mosquitto
+      SATVA_API_BASE: http://api:8000/api/v1
+    depends_on:
+      api:
+        condition: service_healthy
+    command: python -m app.workers.mqtt_bridge
+
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    container_name: satva-dashboard
+    restart: unless-stopped
+    environment:
+      VITE_SATVA_API_BASE: ${VITE_SATVA_API_BASE:-http://localhost:8000/api/v1}
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./dashboard:/app
+      - /app/node_modules
+    depends_on:
+      api:
+        condition: service_healthy
+    command: npm run dev -- --host 0.0.0.0
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+  mosquitto_data:

@@ -1,0 +1,33 @@
+/* MapLibre's stylesheet must be imported before Tailwind's layers:
+   CSS requires @import to precede all other statements. */
+@import 'maplibre-gl/dist/maplibre-gl.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { -webkit-font-smoothing: antialiased; }
+  body { @apply bg-canvas text-ink font-sans antialiased; }
+  :focus-visible { @apply outline-none ring-2 ring-brand ring-offset-2; }
+}
+
+@layer components {
+  .card { @apply bg-white border border-line rounded-2xl shadow-card; }
+  .card-pad { @apply p-5; }
+  .label { @apply text-xs font-semibold uppercase tracking-wide text-ink-faint; }
+  .stat { @apply text-3xl font-extrabold tracking-tight tabular-nums; }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5
+           text-sm font-semibold transition-colors disabled:opacity-50
+           disabled:cursor-not-allowed;
+  }
+  .btn-primary { @apply btn bg-brand text-white hover:bg-brand-dark; }
+  .btn-ghost { @apply btn border border-line bg-white text-ink hover:bg-canvas; }
+  .badge {
+    @apply inline-flex items-center gap-1.5 rounded-lg px-2 py-1
+           text-[11px] font-semibold uppercase tracking-wide;
+  }
+  .th { @apply text-left text-xs font-semibold uppercase tracking-wide text-ink-faint px-4 py-3; }
+  .td { @apply px-4 py-3 text-sm border-t border-line align-top; }
+}
