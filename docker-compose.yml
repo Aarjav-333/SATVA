@@ -141,37 +141,36 @@ services:
     container_name: satva-worker
     restart: unless-stopped
     env_file: .env
-
     environment:
       SATVA_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-satva}:${POSTGRES_PASSWORD:-satva_dev_password}@postgres:5432/${POSTGRES_DB:-satva}
       SATVA_ANALYTICS_DATABASE_URL: postgresql+psycopg://satva_analytics:${SATVA_ANALYTICS_DB_PASSWORD:-satva_analytics_password}@postgres:5432/${POSTGRES_DB:-satva}
       SATVA_CELERY_BROKER_URL: redis://redis:6379/1
       SATVA_CELERY_RESULT_BACKEND: redis://redis:6379/2
       SATVA_S3_ENDPOINT_URL: http://minio:9000
-
     volumes:
       - ./backend:/app
-
     depends_on:
       api:
         condition: service_healthy
-
     command: celery -A app.workers.celery_app worker --loglevel=info --concurrency=2
-
+    # `inspect ping` is a broadcast over the broker, so -d scopes it to THIS
+    # container: without it a healthy sibling would answer for a dead worker.
+    # The probe pays a cold interpreter start plus the app import (numpy, OpenCV,
+    # sklearn) before the 5s broker round-trip even begins, so the timeout has to
+    # cover that -- at 10s a loaded machine reports a perfectly good worker
+    # unhealthy. Interval is long for the same reason: this is not a cheap check.
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "celery -A app.workers.celery_app inspect ping -d celery@$$HOSTNAME --timeout=5 | grep -q pong"
+          "celery -A app.workers.celery_app inspect ping -d celery@$$HOSTNAME --timeout=10 | grep -q pong"
         ]
-      interval: 30s
-      timeout: 10s
+      interval: 60s
+      timeout: 45s
       retries: 3
-      start_period: 30s
+      start_period: 60s
 
   beat:
-    healthcheck:
-      disable: true
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -187,11 +186,15 @@ services:
     depends_on:
       api:
         condition: service_healthy
-    command: celery -A app.workers.celery_app beat --loglevel=info
+    # --schedule keeps beat's shelve database in the container. The default is
+    # relative to the working directory, which is the bind-mounted source tree,
+    # so without this every `up` drops a celerybeat-schedule file into the
+    # developer's checkout.
+    command: >
+      celery -A app.workers.celery_app beat --loglevel=info
+      --schedule /tmp/celerybeat-schedule
 
   mqtt-bridge:
-    healthcheck:
-      disable: true
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -222,7 +225,8 @@ services:
     depends_on:
       api:
         condition: service_healthy
-    command: npm run dev -- --host 0.0.0.0
+    # No `command:` override -- the image CMD runs the dev server, and its host
+    # and port come from dashboard/vite.config.js.
 
 volumes:
   postgres_data:

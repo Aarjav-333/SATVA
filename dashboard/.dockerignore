@@ -1,0 +1,24 @@
+# Docker reads this file, not .gitignore, when assembling the build context.
+#
+# Without it `COPY . .` drops the host's node_modules on top of the one `npm ci`
+# just built. On a Windows workstation that tree carries win32 binaries
+# (@esbuild/win32-x64, @rollup/rollup-win32-x64-msvc) and .cmd/.ps1 shims, and
+# because docker-compose.yml seeds the anonymous /app/node_modules volume from
+# this image, they end up running inside the Linux container. It is also ~200 MB
+# of context that invalidates the cache on every source edit.
+node_modules
+dist
+.vite
+
+.git
+.gitignore
+.dockerignore
+Dockerfile
+
+npm-debug.log*
+.env
+.env.*
+!.env.example
+
+.DS_Store
+Thumbs.db

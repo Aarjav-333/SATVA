@@ -31,7 +31,10 @@ USER satva
 
 EXPOSE 8000
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-    CMD python -c "import urllib.request;urllib.request.urlopen('http://localhost:8000/api/v1/health')" || exit 1
+# Deliberately no HEALTHCHECK here. This one image runs four different services
+# (api, worker, beat, mqtt-bridge) and only the api serves HTTP, so an
+# image-level HTTP probe would mark the other three permanently unhealthy and
+# force each of them to override it back off. The api declares its own probe in
+# docker-compose.yml, where the service that needs it lives.
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

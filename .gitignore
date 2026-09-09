@@ -46,8 +46,12 @@ infrastructure/volumes/
 backend/.demo-tmp/
 *.db
 *.sqlite3
-backend/celerybeat-schedule
-backend/celerybeat-schedule.*
+# The compose beat service writes its schedule to /tmp inside the container, but
+# running `celery beat` directly still drops this next to the working directory,
+# which is not always backend/. Unanchored so it matches at any depth.
+celerybeat-schedule
+celerybeat-schedule.*
+celerybeat.pid
 
 # OS / editor
 .DS_Store

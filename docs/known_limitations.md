@@ -231,13 +231,21 @@ Thinner coverage:
   PostGIS image.
 - **The database image sits on Debian bullseye, which is end-of-life.**
   `postgis/postgis:16-3.4` is built on bullseye, and no bookworm-based PostGIS
-  tag exists for PostgreSQL 16. Bullseye's security suite has stopped being
-  refreshed, so its `Release` file is expired and a plain `apt-get update` now
-  exits non-zero; the Dockerfile passes `Acquire::Check-Valid-Until=false` to
-  get past the expiry check. Signature verification is untouched, but the base
-  image no longer receives security updates. Moving to a bookworm base means
-  moving to PostgreSQL 17, which is a major-version upgrade for any existing
-  volume and has not been done.
+  tag exists for PostgreSQL 16 — `16-3.4` and `16-3.5` are both bullseye.
+  Bullseye's security suite has stopped being refreshed, so its `Release` file
+  is expired and a plain `apt-get update` now exits non-zero. The Dockerfile
+  turns the expiry check off **per-source**, on the three `deb.debian.org` lines
+  only, so PGDG — the repository pgvector actually ships from — keeps both its
+  signature and its freshness guarantee. Signature verification is on
+  everywhere. The base image still receives no security updates. Moving to a
+  bookworm base means moving to PostgreSQL 17, which is a major-version upgrade
+  for any existing volume and has not been done.
+
+  Two consequences worth knowing. The pgvector package is pinned
+  (`PGVECTOR_VERSION`) so a rebuild cannot silently change the extension under
+  an existing volume; bump it deliberately. And installing pgvector pulls
+  `postgresql-16` forward to the current PGDG point release, so the server minor
+  version is set by build date rather than by the base image tag.
 - **`passlib` was removed.** Unmaintained since 2020 and incompatible with
   bcrypt 5.x. `app/core/security.py` uses `bcrypt` directly, with SHA-256
   pre-hashing so passwords over 72 bytes are not silently truncated.

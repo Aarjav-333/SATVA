@@ -1,8 +1,45 @@
-# Files that are executed rather than just read must be stored with LF.
 # Development happens on Windows with core.autocrlf=true, which would otherwise
-# commit CRLF; a stray CR breaks a shell heredoc terminator and is passed
-# through into container builds.
+# commit CRLF and hand it back on checkout. Two separate hazards follow, so
+# there are two halves to this file.
+
+# --- 1. Files that are executed or parsed rather than just read --------------
+# A stray CR breaks a shell heredoc terminator and is passed through into
+# container builds. `.env` is the sharpest case: docker-compose.yml reads it with
+# env_file, so a trailing CR ends up inside the value -- SATVA_DEBUG=true\r and
+# SATVA_ACCESS_TOKEN_TTL_MIN=60\r both fail pydantic-settings coercion and the
+# API container dies on startup. The documented first step is
+# `cp .env.example .env`, so the example has to be pinned too.
 *.yml   text eol=lf
 *.yaml  text eol=lf
 *.sh    text eol=lf
-Dockerfile text eol=lf
+*.sql   text eol=lf
+*.conf  text eol=lf
+*.ini   text eol=lf
+*.toml  text eol=lf
+Dockerfile      text eol=lf
+.dockerignore   text eol=lf
+.gitattributes  text eol=lf
+.gitignore      text eol=lf
+.env.example    text eol=lf
+
+# --- 2. Files that must never be touched at all ------------------------------
+# Without an explicit attribute Git guesses text vs binary from a NUL byte in
+# the first 8000 bytes only. A model whose header happens to be NUL-free would
+# have every 0x0D 0x0A pair rewritten, silently corrupting the weights the
+# mobile colorimetry engine loads -- and it would surface as wrong inference
+# output, not as a load error.
+*.tflite  binary
+*.onnx    binary
+*.pb      binary
+*.png     binary
+*.jpg     binary
+*.jpeg    binary
+*.webp    binary
+*.ico     binary
+*.pdf     binary
+*.woff    binary
+*.woff2   binary
+# TensorFlow SavedModel weights: extensionless, so the globs above miss them.
+# Scoped to variables/ on purpose -- ml/artifacts also holds JSON reports that
+# should stay diffable.
+ml/artifacts/saved_model/variables/**  binary

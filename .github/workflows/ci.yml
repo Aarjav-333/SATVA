@@ -59,21 +59,33 @@ jobs:
 
       - name: Start it
         run: |
+          # Mount the real init directory rather than restating the extension
+          # list here. Hand-copying it meant CI validated migrations against a
+          # database that differed from the one compose builds -- the script
+          # also creates postgis_topology and pg_trgm, so a migration using
+          # either would pass locally and fail here, or the reverse.
           docker run -d --name satva-test-db \
             -e POSTGRES_USER=satva -e POSTGRES_PASSWORD=satva -e POSTGRES_DB=satva \
+            -v "$PWD/infrastructure/postgres/init:/docker-entrypoint-initdb.d:ro" \
             -p 5432:5432 satva/postgis-pgvector:16
           # Wait over TCP, not the Unix socket. While initdb runs, the
           # entrypoint starts a temporary server that listens on the socket
-          # only, so a socket-based pg_isready reports ready while the
-          # image's own PostGIS init scripts are still running -- and the
-          # CREATE EXTENSION below then races them.
-          for i in $(seq 1 30); do
+          # only, so a socket-based pg_isready reports ready while the init
+          # scripts above are still running. TCP opens only once the real
+          # server starts, which is after they have all completed.
+          #
+          # Budget generously: this covers the whole PostGIS bootstrap on a cold
+          # runner, and an over-budget init is now a hard failure rather than a
+          # step that limps on to a confusing error.
+          for i in $(seq 1 60); do
             docker exec satva-test-db pg_isready -U satva -h 127.0.0.1 && break
             sleep 2
           done
           docker exec satva-test-db pg_isready -U satva -h 127.0.0.1
-          docker exec satva-test-db psql -U satva -d satva \
-            -c "CREATE EXTENSION IF NOT EXISTS postgis; CREATE EXTENSION IF NOT EXISTS vector; CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";"
+          # Prove the mounted script actually ran; a silent init failure would
+          # otherwise only surface as a confusing migration error.
+          docker exec satva-test-db psql -U satva -d satva -tAc \
+            "SELECT extname FROM pg_extension ORDER BY extname"
 
       - uses: actions/setup-python@v5
         with:
@@ -93,45 +105,87 @@ jobs:
           alembic upgrade head
 
       - name: The database-level safeguards must actually hold
-        env:
-          PGPASSWORD: satva
+        # `shell: bash` rather than the default `bash -e`, for pipefail: a
+        # pipeline must not report success on the strength of its last stage
+        # alone. Both probes below therefore capture psql's output and check it
+        # explicitly, so "the database was unreachable" can never be printed as
+        # "the guarantee was lost" -- the two need different responses.
+        shell: bash
         run: |
-          echo "--- custody events must be append-only ---"
-          # The guard is a FOR EACH ROW trigger, so it only fires on a row
-          # that actually exists. Against the empty table a fresh migration
-          # leaves behind, "UPDATE ... SET" reports UPDATE 0 and proves
-          # nothing, so seed a lot and an event first, then roll the probe
-          # back so the assertion leaves no trace in the database.
-          for op in UPDATE DELETE; do
-            if [ "$op" = "UPDATE" ]; then
-              mutate="UPDATE analytics.custody_events SET actor_kind='x' WHERE id='00000000-0000-0000-0000-0000000000bb';"
-            else
-              mutate="DELETE FROM analytics.custody_events WHERE id='00000000-0000-0000-0000-0000000000bb';"
-            fi
-            docker exec -i satva-test-db psql -U satva -d satva <<SQL 2>&1 | grep -q "append-only" \
-              && echo "OK: $op rejected" || (echo "FAIL: $op was permitted" && exit 1)
+          # Every psql below runs inside the container, where the image's pg_hba
+          # trusts local socket connections. There is deliberately no PGPASSWORD
+          # in the step env: docker exec does not forward runner environment, so
+          # setting it there only creates the illusion of authentication. The
+          # analytics probe passes its own with `docker exec -e`.
+
+          # Asserts that `mutate` is refused by the append-only trigger. The
+          # guard is FOR EACH ROW, so it only fires on a row that actually
+          # exists: against the empty table a fresh migration leaves behind,
+          # "UPDATE ... SET" reports UPDATE 0 and proves nothing. So seed a lot
+          # and an event first, then roll the probe back so the assertion leaves
+          # no trace in the database.
+          #
+          # Fixture values must not contain the string the assertion greps for,
+          # or the seed itself could satisfy the check and it would pass even
+          # with the trigger dropped.
+          assert_rejected() {
+            local label="$1" mutate="$2" out status=0
+            # `|| status=$?` keeps errexit from killing the function here: a
+            # failing command substitution in a bare assignment aborts the whole
+            # step, which would skip the diagnostic below and leave the log
+            # showing nothing at all. psql itself exits 0 even when a statement
+            # errors, so a non-zero status means docker/connection, not the
+            # trigger firing.
+            out=$(docker exec -i satva-test-db psql -U satva -d satva <<SQL 2>&1
           BEGIN;
           INSERT INTO analytics.lots
             (id, lot_code, qr_token, crop, declared_ripening_method, quantity_kg, status, event_count)
           VALUES
-            ('00000000-0000-0000-0000-0000000000aa', 'CI-APPEND-ONLY', 'ci-append-only-token',
+            ('00000000-0000-0000-0000-0000000000aa', 'CI-TRIGGER-PROBE', 'ci-trigger-probe-token',
              'banana', 'NONE', 1, 'ACTIVE', 0);
           INSERT INTO analytics.custody_events
             (id, lot_id, sequence_no, event_type, actor_kind, payload,
              occurred_at, previous_hash, event_hash, hash_algorithm)
           VALUES
             ('00000000-0000-0000-0000-0000000000bb', '00000000-0000-0000-0000-0000000000aa',
-             0, 'HARVEST', 'SYSTEM', '{}'::jsonb, now(), '0', 'ci-hash', 'sha256');
+             0, 'HARVEST', 'SYSTEM', '{}'::jsonb, now(), '0', 'ci-probe-hash', 'sha256');
           $mutate
           ROLLBACK;
           SQL
-          done
+            ) || status=$?
+            if [ "$status" -ne 0 ]; then
+              echo "FAIL: could not reach the database to test $label (psql exit $status)"
+              echo "$out"
+              return 1
+            fi
+            if printf '%s' "$out" | grep -q "append-only"; then
+              echo "OK: $label rejected"
+            else
+              echo "FAIL: $label was permitted"
+              echo "$out"
+              return 1
+            fi
+          }
+
+          echo "--- custody events must be append-only ---"
+          assert_rejected UPDATE \
+            "UPDATE analytics.custody_events SET actor_kind='x' WHERE id='00000000-0000-0000-0000-0000000000bb';"
+          assert_rejected DELETE \
+            "DELETE FROM analytics.custody_events WHERE id='00000000-0000-0000-0000-0000000000bb';"
 
           echo "--- the analytics role must not reach identity data ---"
-          docker exec -e PGPASSWORD=satva_analytics_password satva-test-db \
-            psql -U satva_analytics -d satva -c "SELECT 1 FROM identity.users;" 2>&1 \
-            | grep -q "permission denied" \
-            && echo "OK: identity schema denied" || (echo "FAIL: identity was readable" && exit 1)
+          # Captured rather than piped: psql exits non-zero here by design (the
+          # query is supposed to be refused), so under pipefail a pipe into grep
+          # would take psql's status and report a denied read as a failure.
+          identity_out=$(docker exec -e PGPASSWORD=satva_analytics_password satva-test-db \
+            psql -U satva_analytics -d satva -c "SELECT 1 FROM identity.users;" 2>&1 || true)
+          if printf '%s' "$identity_out" | grep -q "permission denied"; then
+            echo "OK: identity schema denied"
+          else
+            echo "FAIL: identity was readable, or the probe never reached the database"
+            echo "$identity_out"
+            exit 1
+          fi
 
       - name: Stop
         if: always()
