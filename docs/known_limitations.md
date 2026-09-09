@@ -229,6 +229,15 @@ Thinner coverage:
 - **No single official Postgres image has both PostGIS and pgvector.**
   `infrastructure/postgres/Dockerfile` builds one by adding pgvector to the
   PostGIS image.
+- **The database image sits on Debian bullseye, which is end-of-life.**
+  `postgis/postgis:16-3.4` is built on bullseye, and no bookworm-based PostGIS
+  tag exists for PostgreSQL 16. Bullseye's security suite has stopped being
+  refreshed, so its `Release` file is expired and a plain `apt-get update` now
+  exits non-zero; the Dockerfile passes `Acquire::Check-Valid-Until=false` to
+  get past the expiry check. Signature verification is untouched, but the base
+  image no longer receives security updates. Moving to a bookworm base means
+  moving to PostgreSQL 17, which is a major-version upgrade for any existing
+  volume and has not been done.
 - **`passlib` was removed.** Unmaintained since 2020 and incompatible with
   bcrypt 5.x. `app/core/security.py` uses `bcrypt` directly, with SHA-256
   pre-hashing so passwords over 72 bytes are not silently truncated.

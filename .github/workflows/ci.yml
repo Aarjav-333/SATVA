@@ -62,10 +62,16 @@ jobs:
           docker run -d --name satva-test-db \
             -e POSTGRES_USER=satva -e POSTGRES_PASSWORD=satva -e POSTGRES_DB=satva \
             -p 5432:5432 satva/postgis-pgvector:16
+          # Wait over TCP, not the Unix socket. While initdb runs, the
+          # entrypoint starts a temporary server that listens on the socket
+          # only, so a socket-based pg_isready reports ready while the
+          # image's own PostGIS init scripts are still running -- and the
+          # CREATE EXTENSION below then races them.
           for i in $(seq 1 30); do
-            docker exec satva-test-db pg_isready -U satva && break
+            docker exec satva-test-db pg_isready -U satva -h 127.0.0.1 && break
             sleep 2
           done
+          docker exec satva-test-db pg_isready -U satva -h 127.0.0.1
           docker exec satva-test-db psql -U satva -d satva \
             -c "CREATE EXTENSION IF NOT EXISTS postgis; CREATE EXTENSION IF NOT EXISTS vector; CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";"
 
@@ -91,9 +97,35 @@ jobs:
           PGPASSWORD: satva
         run: |
           echo "--- custody events must be append-only ---"
-          docker exec satva-test-db psql -U satva -d satva -c \
-            "UPDATE analytics.custody_events SET actor_kind='x';" 2>&1 | grep -q "append-only" \
-            && echo "OK: UPDATE rejected" || (echo "FAIL: UPDATE was permitted" && exit 1)
+          # The guard is a FOR EACH ROW trigger, so it only fires on a row
+          # that actually exists. Against the empty table a fresh migration
+          # leaves behind, "UPDATE ... SET" reports UPDATE 0 and proves
+          # nothing, so seed a lot and an event first, then roll the probe
+          # back so the assertion leaves no trace in the database.
+          for op in UPDATE DELETE; do
+            if [ "$op" = "UPDATE" ]; then
+              mutate="UPDATE analytics.custody_events SET actor_kind='x' WHERE id='00000000-0000-0000-0000-0000000000bb';"
+            else
+              mutate="DELETE FROM analytics.custody_events WHERE id='00000000-0000-0000-0000-0000000000bb';"
+            fi
+            docker exec -i satva-test-db psql -U satva -d satva <<SQL 2>&1 | grep -q "append-only" \
+              && echo "OK: $op rejected" || (echo "FAIL: $op was permitted" && exit 1)
+          BEGIN;
+          INSERT INTO analytics.lots
+            (id, lot_code, qr_token, crop, declared_ripening_method, quantity_kg, status, event_count)
+          VALUES
+            ('00000000-0000-0000-0000-0000000000aa', 'CI-APPEND-ONLY', 'ci-append-only-token',
+             'banana', 'NONE', 1, 'ACTIVE', 0);
+          INSERT INTO analytics.custody_events
+            (id, lot_id, sequence_no, event_type, actor_kind, payload,
+             occurred_at, previous_hash, event_hash, hash_algorithm)
+          VALUES
+            ('00000000-0000-0000-0000-0000000000bb', '00000000-0000-0000-0000-0000000000aa',
+             0, 'HARVEST', 'SYSTEM', '{}'::jsonb, now(), '0', 'ci-hash', 'sha256');
+          $mutate
+          ROLLBACK;
+          SQL
+          done
 
           echo "--- the analytics role must not reach identity data ---"
           docker exec -e PGPASSWORD=satva_analytics_password satva-test-db \

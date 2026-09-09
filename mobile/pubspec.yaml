@@ -56,4 +56,3 @@ flutter:
   assets:
     - assets/models/
     - assets/calibration/
-    - assets/reference_card/
