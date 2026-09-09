@@ -206,7 +206,7 @@ Honest about where the current implementation stops.
 
 ## 11. Testing gaps
 
-139 backend tests and 33 Dart tests, concentrated on the parts where being wrong
+190 backend tests and 33 Dart tests, concentrated on the parts where being wrong
 would cause harm: colorimetry, the hash chain, corroboration, and the evidence
 rule.
 

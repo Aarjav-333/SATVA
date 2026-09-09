@@ -122,7 +122,7 @@ satva/
 │   │   │   └── complaints/  FSSAI package generation
 │   │   └── workers/         Celery tasks + the MQTT bridge
 │   ├── alembic/             migrations
-│   └── tests/               139 tests
+│   └── tests/               190 tests
 ├── mobile/           Flutter 3 · Riverpod · sqflite · TFLite
 │   └── lib/features/colorimetry/engine/  ← Layer B, mirrored in Dart
 ├── dashboard/        React 18 · Vite · Tailwind · Recharts · MapLibre
@@ -207,7 +207,7 @@ remembering to behave.
 ## Verification
 
 ```bash
-cd backend  && python -m pytest -q          # 139 passed
+cd backend  && python -m pytest -q          # 190 passed
 cd mobile   && flutter test                 # 33 passed
 cd dashboard && npm run build && npx eslint src --ext js,jsx
 ```
