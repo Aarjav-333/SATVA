@@ -141,20 +141,37 @@ services:
     container_name: satva-worker
     restart: unless-stopped
     env_file: .env
+
     environment:
       SATVA_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-satva}:${POSTGRES_PASSWORD:-satva_dev_password}@postgres:5432/${POSTGRES_DB:-satva}
       SATVA_ANALYTICS_DATABASE_URL: postgresql+psycopg://satva_analytics:${SATVA_ANALYTICS_DB_PASSWORD:-satva_analytics_password}@postgres:5432/${POSTGRES_DB:-satva}
       SATVA_CELERY_BROKER_URL: redis://redis:6379/1
       SATVA_CELERY_RESULT_BACKEND: redis://redis:6379/2
       SATVA_S3_ENDPOINT_URL: http://minio:9000
+
     volumes:
       - ./backend:/app
+
     depends_on:
       api:
         condition: service_healthy
+
     command: celery -A app.workers.celery_app worker --loglevel=info --concurrency=2
 
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "celery -A app.workers.celery_app inspect ping -d celery@$$HOSTNAME --timeout=5 | grep -q pong"
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
   beat:
+    healthcheck:
+      disable: true
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -173,6 +190,8 @@ services:
     command: celery -A app.workers.celery_app beat --loglevel=info
 
   mqtt-bridge:
+    healthcheck:
+      disable: true
     build:
       context: ./backend
       dockerfile: Dockerfile

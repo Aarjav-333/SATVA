@@ -46,6 +46,8 @@ infrastructure/volumes/
 backend/.demo-tmp/
 *.db
 *.sqlite3
+backend/celerybeat-schedule
+backend/celerybeat-schedule.*
 
 # OS / editor
 .DS_Store
