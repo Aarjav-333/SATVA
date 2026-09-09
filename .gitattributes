@@ -1,0 +1,8 @@
+# Files that are executed rather than just read must be stored with LF.
+# Development happens on Windows with core.autocrlf=true, which would otherwise
+# commit CRLF; a stray CR breaks a shell heredoc terminator and is passed
+# through into container builds.
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.sh    text eol=lf
+Dockerfile text eol=lf
